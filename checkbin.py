@@ -19,7 +19,7 @@ def get_bin_collection_info():
     # Locate the search input field by ID and enter the user input
     search_input = driver.find_element(By.ID, 'myText0')
     search_input.send_keys(user_input)
-    time.sleep(2)  # Wait for the dropdown to populate
+    time.sleep(2)  # Wait for the dropdown to populate. TODO: may need to click 'search'
     
     # Press the down arrow to select the top result from the dropdown
     search_input.send_keys(Keys.ARROW_DOWN)
@@ -30,14 +30,14 @@ def get_bin_collection_info():
     time.sleep(2)  # Wait for any page updates
     
     # Optionally, navigate and extract specific information about bin collection
-    # For example, locating the element that contains the bin collection details
-    # bin_info = driver.find_element(By.CLASS_NAME, 'bin-collection-details').text
+    # For example, locating the element that contains the bin collection details. UPDATE.
+    bin_info = driver.find_element(By.CLASS_NAME, 'bin-collection-details').text
 
     # Clean up, close the browser
     driver.quit()
     
-    # Return or print any relevant information
-    # return bin_info
+    # Return or print any relevant information. UPDATE.
+    return bin_info
 
 # Example usage
 get_bin_collection_info()
