@@ -1,5 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
@@ -35,8 +37,13 @@ def get_next_bin_collection(bin_info):
     return "No bin collection dates found."
 
 def get_bin_collection_info():
-    # Set up the Selenium WebDriver
-    driver = webdriver.Chrome()
+    # Set up Chrome options for headless mode
+    options = Options()
+    options.headless = True
+    options.add_argument('--log-level=3')  # This should suppress most of the console logs
+    
+    # Set up the Selenium WebDriver with the specified options
+    driver = webdriver.Chrome(options=options)
     
     # Navigate to the bin collection page
     driver.get("https://www.enfield.gov.uk/services/rubbish-and-recycling/find-my-collection-day")
@@ -78,16 +85,13 @@ def get_bin_collection_info():
     WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, 'results')))
     bin_info = driver.find_element(By.ID, 'results').text
     
-    # Print the bin collection info. If needed, uncomment.
+    # Print the bin collection info. Uncomment if needed.
     # print("Bin collection information:\n", bin_info)
     
     # Determine and print which bin is next to be collected
     next_bin_collection = get_next_bin_collection(bin_info)
     print(next_bin_collection)
     
-    # Leave the browser open for a few seconds before closing
-    time.sleep(10)  # Wait for 10 seconds before closing the browser
-
     # Clean up, close the browser
     driver.quit()
     
