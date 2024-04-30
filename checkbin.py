@@ -13,6 +13,14 @@ def get_bin_collection_info():
     # Wait for the page to load completely
     time.sleep(2)
     
+    # Dismiss cookie consent popup
+    try:
+        cookie_button = driver.find_element(By.ID, 'ccc-notify-reject')
+        cookie_button.click()
+        time.sleep(2)  # Wait for the popup to close and page to update
+    except Exception as e:
+        print("Cookie consent popup was not found or could not be dismissed:", str(e))
+    
     # Take user input for postcode and address
     user_input = input("Please enter your postcode and address: ")
     
