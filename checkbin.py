@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 
 def get_bin_collection_info():
@@ -17,9 +18,9 @@ def get_bin_collection_info():
     try:
         cookie_button = driver.find_element(By.ID, 'ccc-notify-reject')
         cookie_button.click()
-        time.sleep(2)  # Wait for the popup to close and page to update
     except Exception as e:
         print("Cookie consent popup was not found or could not be dismissed:", str(e))
+    WebDriverWait(driver, 10).until(EC.invisibility_of_element((By.ID, 'ccc-notify-reject')))
     
     # Take user input for postcode and address
     user_input = input("Please enter your postcode and address: ")
@@ -27,24 +28,36 @@ def get_bin_collection_info():
     # Locate the search input field by ID and enter the user input
     search_input = driver.find_element(By.ID, 'myText0')
     search_input.send_keys(user_input)
-    time.sleep(2)  # Wait for the dropdown to populate. TODO: may need to click 'search'
     
-    # Press the down arrow to select the top result from the dropdown
-    search_input.send_keys(Keys.ARROW_DOWN)
-    time.sleep(1)  # Ensure selection is highlighted
+    # Click the search button
+    search_button = driver.find_element(By.ID, 'submitButton0')
+    search_button.click()
     
-    # Press Enter to confirm the selection
-    search_input.send_keys(Keys.RETURN)
-    time.sleep(2)  # Wait for any page updates
+    # Handle dropdown menu
+    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, 'mySelect0')))
+    dropdown = driver.find_element(By.ID, 'mySelect0')
+    dropdown.click()  # Explicitly click to open the dropdown
+
+    # Explicitly select the first option with class 'select-option'
+    WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.select-option')))
+    first_option = driver.find_elements(By.CSS_SELECTOR, '.select-option')[0]
+    first_option.click()  # Click the first select-option
+    time.sleep(2)  # Wait for any AJAX calls or updates to be completed
     
-    # Optionally, navigate and extract specific information about bin collection
-    # For example, locating the element that contains the bin collection details. UPDATE.
-    bin_info = driver.find_element(By.CLASS_NAME, 'bin-collection-details').text
+    # Wait for the bin collection details to be visible
+    WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, 'results')))
+    bin_info = driver.find_element(By.ID, 'results').text
+    
+    # Print the bin collection info
+    print("Bin collection information:\n", bin_info)
+    
+    # Leave the browser open for a few seconds before closing
+    time.sleep(10)  # Wait for 10 seconds before closing the browser
 
     # Clean up, close the browser
     driver.quit()
     
-    # Return or print any relevant information. UPDATE.
+    # Return the bin info for any further processing
     return bin_info
 
 # Example usage
