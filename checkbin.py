@@ -3,6 +3,36 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import re
+from datetime import datetime
+
+def parse_date(bin_description):
+    # Extracts the date from the string using regex and converts it to a datetime object
+    date_match = re.search(r'\d{2}/\d{2}/\d{4}', bin_description)
+    if date_match:
+        return datetime.strptime(date_match.group(), '%d/%m/%Y')
+    return None
+
+def get_next_bin_collection(bin_info):
+    # Split the bin_info into separate lines
+    lines = bin_info.split('\n')
+    # Initialize a dictionary to hold the date for each type of bin
+    bin_dates = {}
+    for line in lines:
+        if 'black bin collection date is' in line:
+            date = parse_date(line)
+            if date:
+                bin_dates['black'] = date
+        elif 'blue bin collection date is' in line:
+            date = parse_date(line)
+            if date:
+                bin_dates['blue'] = date
+    
+    # Determine which bin has the earlier collection date
+    if bin_dates:
+        next_bin = min(bin_dates, key=bin_dates.get)
+        return f"The next bin to be collected is the {next_bin} bin on {bin_dates[next_bin].strftime('%d/%m/%Y')}."
+    return "No bin collection dates found."
 
 def get_bin_collection_info():
     # Set up the Selenium WebDriver
@@ -48,8 +78,12 @@ def get_bin_collection_info():
     WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, 'results')))
     bin_info = driver.find_element(By.ID, 'results').text
     
-    # Print the bin collection info
-    print("Bin collection information:\n", bin_info)
+    # Print the bin collection info. If needed, uncomment.
+    # print("Bin collection information:\n", bin_info)
+    
+    # Determine and print which bin is next to be collected
+    next_bin_collection = get_next_bin_collection(bin_info)
+    print(next_bin_collection)
     
     # Leave the browser open for a few seconds before closing
     time.sleep(10)  # Wait for 10 seconds before closing the browser
