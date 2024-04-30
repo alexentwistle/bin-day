@@ -8,9 +8,9 @@ import time
 import re
 from datetime import datetime
 
-def parse_date(bin_description):
+def parse_date(bin_collection_day):
     # Extracts the date from the string using regex and converts it to a datetime object
-    date_match = re.search(r'\d{2}/\d{2}/\d{4}', bin_description)
+    date_match = re.search(r'\d{2}/\d{2}/\d{4}', bin_collection_day)
     if date_match:
         return datetime.strptime(date_match.group(), '%d/%m/%Y')
     return None
